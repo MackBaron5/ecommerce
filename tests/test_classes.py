@@ -63,8 +63,8 @@ def test_category_initialization(sample_products):
 
     # Проверяем, что геттер возвращает правильный шаблон строки
     expected_output = (
-        "Samsung Galaxy S23 Ultra, 180000 руб. Остаток: 5 шт.\n"
-        "Iphone 15 Pro, 210000 руб. Остаток: 3 шт.\n"
+        "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт.\n"
+        "Iphone 15 Pro, 210000.0 руб. Остаток: 3 шт.\n"
     )
     assert category.products == expected_output
 
