@@ -57,5 +57,5 @@ class Category:
         """Геттер, возвращающий строковое представление всех продуктов."""
         result = ""
         for product in self.__products:
-            result += f"{product.name}, {float(product.price)} руб. Остаток: {product.quantity} шт.\n"
+            result += f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
         return result
