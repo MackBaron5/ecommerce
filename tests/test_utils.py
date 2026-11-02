@@ -8,7 +8,7 @@ def test_load_data_from_json_success():
     assert len(categories) == 2
     assert categories[0].name == "Смартфоны"
     assert categories[1].name == "Телевизоры"
-    assert len(categories[0].products) == 3
+    assert len(categories[0].products.strip().split('\n')) == 3
 
 
 def test_load_data_from_json_file_not_found():
