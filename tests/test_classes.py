@@ -74,12 +74,12 @@ def test_category_and_product_count(sample_products):
     assert Category.category_count == 0
     assert Category.product_count == 0
 
-    cat1 = Category("Смартфоны", "Мобильные телефоны", sample_products)
+    Category("Смартфоны", "Мобильные телефоны", sample_products)
     assert Category.category_count == 1
     assert Category.product_count == 2
 
     p3 = Product("Lenovo Legion 5", "Игровой ноутбук", 150000.0, 2)
-    cat2 = Category("Ноутбуки", "Игровые ноутбуки", [p3])
+    Category("Ноутбуки", "Игровые ноутбуки", [p3])
 
     assert Category.category_count == 2
     assert Category.product_count == 3
