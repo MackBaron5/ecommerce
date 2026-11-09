@@ -1,5 +1,5 @@
 import pytest
-from src.classes import Category, Product
+from src.classes import Category, Product, Smartphone, LawnGrass
 
 
 @pytest.fixture(autouse=True)
@@ -113,3 +113,39 @@ def test_products_getter_with_str(sample_products):
         "Iphone 15 Pro, 210000.0 руб. Остаток: 3 шт.\n"
     )
     assert category.products == expected_output
+
+
+def test_smartphone_initialization():
+    """Тест создания объекта Smartphone и его уникальных свойств."""
+    smart = Smartphone("Iphone 15", "512GB, Gray space", 210000.0, 8, 98.2, "15", 512, "Gray space")
+    assert smart.name == "Iphone 15"
+    assert smart.efficiency == 98.2
+    assert smart.model == "15"
+    assert smart.memory == 512
+    assert smart.color == "Gray space"
+
+
+def test_lawngrass_initialization():
+    """Тест создания объекта LawnGrass и его уникальных свойств."""
+    grass = LawnGrass("Газонная трава", "Элитная трава", 500.0, 20, "Россия", "7 дней", "Зеленый")
+    assert grass.name == "Газонная трава"
+    assert grass.country == "Россия"
+    assert grass.germination_period == "7 дней"
+    assert grass.color == "Зеленый"
+
+
+def test_products_addition_different_classes_error():
+    """Тест Задания 2: Нельзя складывать объекты разных классов."""
+    smart = Smartphone("Iphone 15", "512GB, Gray space", 210000.0, 8, 98.2, "15", 512, "Gray space")
+    grass = LawnGrass("Газонная трава", "Элитная трава", 500.0, 20, "Россия", "7 дней", "Зеленый")
+
+    with pytest.raises(TypeError):
+        _ = smart + grass
+
+
+def test_add_invalid_product_to_category_error():
+    """Тест Задания 3: Нельзя добавлять в категорию объекты, не являющиеся Product или его наследниками."""
+    category = Category("Смартфоны", "Тест")
+
+    with pytest.raises(TypeError):
+        category.add_product("Не объект продукта, а обычная строка")
