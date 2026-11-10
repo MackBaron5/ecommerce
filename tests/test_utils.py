@@ -1,4 +1,3 @@
-import pytest
 from src.utils import load_data_from_json
 
 

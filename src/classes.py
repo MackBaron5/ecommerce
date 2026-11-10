@@ -1,9 +1,39 @@
-class Product:
+from abc import ABC, abstractmethod
+from typing import List
+
+
+class BaseProduct(ABC):
+    """Абстрактный базовый класс для всех продуктов."""
+
+    @abstractmethod
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        self.name = name
+        self.description = description
+        self._price = price
+        self.quantity = quantity
+
+
+class LogMixin:
+    """Миксин для логирования создания объектов."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        print(f"{self.__class__.__name__}{self.__repr__()}")
+
+    def __repr__(self) -> str:
+        # Извлекаем базовые атрибуты продукта по порядку
+        return f"('{self.name}', '{self.description}', {self.price}, {self.quantity})"
+
+
+# Добавляем LogMixin первым в цепочку наследования
+class Product(LogMixin, BaseProduct):
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
         self.name = name
         self.description = description
         self.__price = price  # Приватный атрибут цены
         self.quantity = quantity
+        # Явно вызываем инициализатор миксина, чтобы сработало логирование
+        super().__init__(name, description, price, quantity)
 
     @classmethod
     def new_product(cls, product_data: dict):
@@ -33,7 +63,7 @@ class Product:
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other) -> float:
-        """Задание 2: Сложение общей стоимости товаров ТОЛЬКО одинаковых классов продуктов."""
+        """Сложение общей стоимости товаров ТОЛЬКО одинаковых классов продуктов."""
         if type(self) is not type(other):
             raise TypeError("Можно складывать только товары одного и того же класса.")
         return (self.price * self.quantity) + (other.price * other.quantity)
@@ -43,7 +73,7 @@ class Category:
     category_count = 0
     product_count = 0
 
-    def __init__(self, name: str, description: str, products: list = None) -> None:
+    def __init__(self, name: str, description: str, products: List = None) -> None:
         self.name = name
         self.description = description
         self.__products = []  # Приватный список товаров
@@ -54,9 +84,7 @@ class Category:
                 self.add_product(product)
 
     def add_product(self, product) -> None:
-        """Задание 3: Добавляет продукт в приватный список с проверкой типа.
-        Разрешены только объекты класса Product и его наследников.
-        """
+        """Добавляет продукт в приватный список с проверкой типа."""
         if not isinstance(product, Product):
             raise TypeError("Добавляемый объект должен быть продуктом (класса Product или его наследником).")
 
@@ -66,7 +94,7 @@ class Category:
     @property
     def products(self) -> str:
         """Геттер, возвращающий отформатированное строковое представление всех продуктов."""
-        return "".join([f"{str(product)}\n" for product in self.__products])
+        return "\n".join([f"{str(product)}" for product in self.__products])
 
     def __str__(self) -> str:
         """Строковое отображение категории со всеми единицами товаров на складе."""
@@ -76,20 +104,24 @@ class Category:
 
 class Smartphone(Product):
     """Класс для представления смартфона, наследник класса Product."""
+
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  efficiency: float, model: str, memory: int, color: str) -> None:
-        super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
         self.color = color
+        # Передаем параметры вверх по цепочке для инициализации и логирования
+        super().__init__(name, description, price, quantity)
 
 
 class LawnGrass(Product):
     """Класс для представления газонной травы, наследник класса Product."""
+
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  country: str, germination_period: str, color: str) -> None:
-        super().__init__(name, description, price, quantity)
         self.country = country
         self.germination_period = germination_period
         self.color = color
+        # Передаем параметры вверх по цепочке для инициализации и логирования
+        super().__init__(name, description, price, quantity)
