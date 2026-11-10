@@ -1,27 +1,127 @@
-class Product:
-    """Класс для представления товара."""
+from abc import ABC, abstractmethod
+from typing import List
 
-    def __init__(
-            self, name: str, description: str, price: float, quantity: int
-    ) -> None:
+
+class BaseProduct(ABC):
+    """Абстрактный базовый класс для всех продуктов."""
+
+    @abstractmethod
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
         self.name = name
         self.description = description
-        self.price = price
+        self._price = price
         self.quantity = quantity
 
 
-class Category:
-    """Класс для представления категории товаров."""
+class LogMixin:
+    """Миксин для логирования создания объектов."""
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        print(f"{self.__class__.__name__}{self.__repr__()}")
+
+    def __repr__(self) -> str:
+        # Извлекаем базовые атрибуты продукта по порядку
+        return f"('{self.name}', '{self.description}', {self.price}, {self.quantity})"
+
+
+# Добавляем LogMixin первым в цепочку наследования
+class Product(LogMixin, BaseProduct):
+    def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        self.name = name
+        self.description = description
+        self.__price = price  # Приватный атрибут цены
+        self.quantity = quantity
+        # Явно вызываем инициализатор миксина, чтобы сработало логирование
+        super().__init__(name, description, price, quantity)
+
+    @classmethod
+    def new_product(cls, product_data: dict):
+        """Класс-метод для создания нового объекта Product из словаря."""
+        return cls(
+            name=product_data.get("name"),
+            description=product_data.get("description"),
+            price=product_data.get("price"),
+            quantity=product_data.get("quantity")
+        )
+
+    @property
+    def price(self) -> float:
+        """Геттер для приватного атрибута цены."""
+        return self.__price
+
+    @price.setter
+    def price(self, new_price: float) -> None:
+        """Сеттер для цены с проверкой на корректность значения."""
+        if new_price <= 0:
+            print("Цена не должна быть нулевая или отрицательная")
+        else:
+            self.__price = new_price
+
+    def __str__(self) -> str:
+        """Строковое отображение продукта."""
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other) -> float:
+        """Сложение общей стоимости товаров ТОЛЬКО одинаковых классов продуктов."""
+        if type(self) is not type(other):
+            raise TypeError("Можно складывать только товары одного и того же класса.")
+        return (self.price * self.quantity) + (other.price * other.quantity)
+
+
+class Category:
     category_count = 0
     product_count = 0
 
-    def __init__(
-            self, name: str, description: str, products: list | None = None
-    ) -> None:
+    def __init__(self, name: str, description: str, products: List = None) -> None:
         self.name = name
         self.description = description
-        self.products = products if products is not None else []
-
+        self.__products = []  # Приватный список товаров
         Category.category_count += 1
-        Category.product_count += len(self.products)
+
+        if products:
+            for product in products:
+                self.add_product(product)
+
+    def add_product(self, product) -> None:
+        """Добавляет продукт в приватный список с проверкой типа."""
+        if not isinstance(product, Product):
+            raise TypeError("Добавляемый объект должен быть продуктом (класса Product или его наследником).")
+
+        self.__products.append(product)
+        Category.product_count += 1
+
+    @property
+    def products(self) -> str:
+        """Геттер, возвращающий отформатированное строковое представление всех продуктов."""
+        return "\n".join([f"{str(product)}" for product in self.__products])
+
+    def __str__(self) -> str:
+        """Строковое отображение категории со всеми единицами товаров на складе."""
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+
+class Smartphone(Product):
+    """Класс для представления смартфона, наследник класса Product."""
+
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 efficiency: float, model: str, memory: int, color: str) -> None:
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+        # Передаем параметры вверх по цепочке для инициализации и логирования
+        super().__init__(name, description, price, quantity)
+
+
+class LawnGrass(Product):
+    """Класс для представления газонной травы, наследник класса Product."""
+
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 country: str, germination_period: str, color: str) -> None:
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+        # Передаем параметры вверх по цепочке для инициализации и логирования
+        super().__init__(name, description, price, quantity)
