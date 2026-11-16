@@ -28,6 +28,8 @@ class LogMixin:
 # Добавляем LogMixin первым в цепочку наследования
 class Product(LogMixin, BaseProduct):
     def __init__(self, name: str, description: str, price: float, quantity: int) -> None:
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
         self.name = name
         self.description = description
         self.__price = price  # Приватный атрибут цены
@@ -95,6 +97,13 @@ class Category:
     def products(self) -> str:
         """Геттер, возвращающий отформатированное строковое представление всех продуктов."""
         return "\n".join([f"{str(product)}" for product in self.__products])
+
+    def middle_price(self) -> float:
+        """Подсчитывает средний ценник всех товаров в категории."""
+        try:
+            return sum(product.price for product in self.__products) / len(self.__products)
+        except ZeroDivisionError:
+            return 0
 
     def __str__(self) -> str:
         """Строковое отображение категории со всеми единицами товаров на складе."""
